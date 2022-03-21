@@ -1,21 +1,27 @@
-apiVersion: apps/v1beta2
+---
+apiVersion: apps/v1
 kind: StatefulSet
+
 metadata:
   name: {{ .Chart.Name }}
   namespace: {{ .Release.Namespace }}
   labels:
     chart: {{ .Chart.Name }}
     version: {{ .Chart.Version }}
+
 spec:
-  replicas: {{ .Values.replicas }}
   serviceName: {{ .Chart.Name }}
+  replicas: {{ .Values.replicas }}
+
   selector:
     matchLabels:
       app: {{ .Chart.Name }}
+
   template:
     metadata:
       labels:
         app: {{ .Chart.Name }}
+
     spec:
       containers:
       - name: {{ .Chart.Name }}
@@ -74,6 +80,7 @@ spec:
         - name: {{ .Values.image.imagePullSecret }}
 {{ end }}
   volumeClaimTemplates:
+
   - metadata:
       name: workspace
     spec:
