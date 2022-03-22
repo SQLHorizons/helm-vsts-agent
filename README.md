@@ -1,4 +1,4 @@
-## Notice 
+# Notice
 
 Repository is in read-only and [archive](https://docs.github.com/en/free-pro-team@latest/github/creating-cloning-and-archiving-repositories/about-archiving-repositories) mode
 
@@ -24,39 +24,39 @@ The following tables lists the configurable parameters of the `vsts-agent` chart
 | `replicas`                        | Number of vsts-agent instaces started | `3`                                                       |
 | `resources.disk`                  | Size of the disk attached to the agent| `50Gi`                                                    |
 | `resources.storageclass`          | Specify storageclass used in kubernetes| `default`                                                    |
-| `vstsAccount`                     | VSTS account name                     | `nil` (must be provided during installation)              |
-| `vstsToken`                       | VSTS personal access token            | `nil` (must be provided during installation)              |
-| `vstsPool`                        | VSTS agent pool name                  | `kubernetes-vsts-agents`                                  |
-| `vstsAgentName`                   | VSTS agent name                       | `$HOSTNAME`                                               |
-| `vstsWorkspace`                   | VSTS agent workspace                  | `/workspace`                                              |
+| `adoAccount`                      | AZP account name                      | `nil` (must be provided during installation)              |
+| `adoToken`                        | AZP personal access token             | `nil` (must be provided during installation)              |
+| `adoPool`                         | AZP agent pool name                   | `kubernetes-ado-agents`                                  |
+| `adoAgentName`                    | AZP agent name                        | `$HOSTNAME`                                               |
+| `adoWorkspace`                    | AZP agent workspace                   | `/workspace`                                              |
 | `extraEnv`                   | Extra environment variables on the vsts-agent container                  | `nil`                                              |
 | `cleanRun`                   | Kill and restart vsts-agent container on completion of a build (completely resets the environment)                  | `false`                                              |
 | `volumes`                   | An array of custom volumes to attach to the vsts-agent pod                  | `docker-socket` to mount /var/run/docker.sock (if you still need this volume when defining addition ones, please ensure you reference it again in your list)                                             |
 | `volumeMounts`                   | volumeMounts to the vsts-agent container as referenced in `volumes`                  | A read-only `docker-socket` to mount as /var/run/docker.sock in vsts-agent container (as in `volumes` please reference this again if you still need it in your custom list)                                               |
 | `extraContainers`                   | Array of additional sidecar containers to add into the vsts-agent pod                  | `nil`                                              |
 
-## Configure your VSTS instance
+## Configure your AZP instance
 
-Before starting the chart installation, you have to configure your VSTS instance as follows:
+Before starting the chart installation, you have to configure your AZP instance as follows:
 
-1. Create a personal access token with the authorized scope **Agent Pools(read, manage)**  following these [instructions](https://docs.microsoft.com/en-us/vsts/git/_shared/personal-access-tokens). You will have to provide later the base64 encoded value of this token to the `vstsToken` value of the chart.
+1. Create a personal access token with the authorized scope **Agent Pools(read, manage)**  following these [instructions](https://docs.microsoft.com/en-us/vsts/git/_shared/personal-access-tokens). You will have to provide later the base64 encoded value of this token to the `adoToken` value of the chart.
 
-2. Create a new queue and agent pool with the name `kubernetes-vsts-agents`. You can find more details [here](https://docs.microsoft.com/en-us/vsts/build-release/concepts/agents/pools-queues#creating-agent-pools-and-queues).
+2. Create a new queue and agent pool with the name `kubernetes-ado-agents`. You can find more details [here](https://docs.microsoft.com/en-us/vsts/build-release/concepts/agents/pools-queues#creating-agent-pools-and-queues).
 
 ## Installing the Chart
 
 The chart can be installed with the following command:
 
 ```bash
-export VSTS_TOKEN=$(echo -n '<VSTS TOKEN>' | base64)
+export AZP_TOKEN=$(echo -n '<AZP TOKEN>' | base64)
 
-helm install --namespace <NAMESPACE> --set vstsToken=${VSTS_TOKEN} --set vstsAccount=<VSTS ACCOUNT> --set vstsPool=<VSTS POOL> -f values.yaml vsts-agent .
+helm install --namespace <NAMESPACE> --set adoToken=${AZP_TOKEN} --set adoAccount=<AZP ACCOUNT> --set adoPool=<AZP POOL> -f values.yaml vsts-agent .
 ```
 
 Your deployment should look like this if everything works fine:
 
 ```bash
-kubectl get pods --namespace <NAMESPACE> 
+kubectl get pods --namespace <NAMESPACE>
 NAME           READY     STATUS    RESTARTS   AGE
 vsts-agent-0   1/1       Running   0          1m
 vsts-agent-1   1/1       Running   0          1m
@@ -67,9 +67,9 @@ vsts-agent-2   1/1       Running   0          1m
 A deployed chart can be upgraded as follows:
 
 ```bash
-export VSTS_TOKEN=$(echo -n '<VSTS TOKEN>' | base64)
+export AZP_TOKEN=$(echo -n '<AZP TOKEN>' | base64)
 
-helm upgrade --timeout 900 --namespace <NAMESPACE> --set vstsToken=${VSTS_TOKEN} --set vstsAccount=<VSTS ACCOUNT> --set vstsPool=<VSTS POOL> -f values.yaml vsts-agent . --wait
+helm upgrade --timeout 900 --namespace <NAMESPACE> --set adoToken=${AZP_TOKEN} --set adoAccount=<AZP ACCOUNT> --set adoPool=<AZP POOL> -f values.yaml vsts-agent . --wait
 ```
 
 This command will upgrade the exiting chart and wait until the deployment is completed.
@@ -92,9 +92,9 @@ You can validate the chart during development by using the `helm template` comma
 helm template .
 ```
 
-## Scale up the number of VSTS agents
+## Scale up the number of AZP agents
 
-The number of VSTS agents can be easily increased to `10` by using the following command:
+The number of AZP agents can be easily increased to `10` by using the following command:
 
 ```bash
 kubectl scale --namespace <NAMESPACE> statefulset/vsts-agent --replicas 10

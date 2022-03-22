@@ -3,6 +3,7 @@ replicas: 3
 image:
   repository: microsoft/vsts-agent
   tag: latest
+  ##  pullSecrets: registry-creds
   pullPolicy: Always
 
 resources:

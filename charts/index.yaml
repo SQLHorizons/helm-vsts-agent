@@ -10,6 +10,6 @@ entries:
       name: Microsoft Social Engagement
     name: vsts-agent
     urls:
-    - vsts-agent-1.0.1.tgz
-    version: 1.0.1
+    - vsts-agent-1.0.2.tgz
+    version: 1.0.2
 generated: 2018-10-05T16:06:09.741511+01:00

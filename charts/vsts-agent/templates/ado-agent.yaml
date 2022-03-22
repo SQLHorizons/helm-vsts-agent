@@ -23,25 +23,30 @@ spec:
         app: {{ .Chart.Name }}
 
     spec:
+    {{ if .Values.image.pullSecrets }}
+      imagePullSecrets:
+      - name:  {{ .Values.image.pullSecrets }}
+    {{ end }}
+
       containers:
       - name: {{ .Chart.Name }}
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         env:
-          - name: VSTS_TOKEN
+          - name: AZP_TOKEN
             valueFrom:
               secretKeyRef:
-                name: vsts-agent-secret
-                key: vstsToken
+                name: ado-agent-secret
+                key: adoToken
          {{- with .Values }}
-          - name: VSTS_ACCOUNT
-            value: {{ .vstsAccount }}
-          - name: VSTS_POOL
-            value: {{ .vstsPool | default "kubernetes-vsts-agents" }}
-          - name: VSTS_AGENT
-            value: {{ .vstsAgentName | default "$HOSTNAME" }}
-          - name: VSTS_WORK
-            value: {{ .vstsWorkspace | default "/workspace" }}
+          - name: AZP_URL
+            value: {{ .adoAccount }}
+          - name: AZP_POOL
+            value: {{ .adoPool | default "kubernetes-ado-agents" }}
+          - name: AZP_AGENT_NAME
+            value: {{ .adoAgentName | default "$HOSTNAME" }}
+          - name: AZP_WORK
+            value: {{ .adoWorkspace | default "/workspace" }}
          {{- end }}
          {{- range $key, $value := .Values.extraEnv }}
           - name: {{ $key }}
@@ -49,7 +54,7 @@ spec:
          {{- end }}
         volumeMounts:
           - name: workspace
-            mountPath: {{ .Values.vstsWorkspace | default "/workspace" }}
+            mountPath: {{ .Values.adoWorkspace | default "/workspace" }}
 {{- if .Values.volumeMounts }}
 {{ toYaml .Values.volumeMounts | indent 10 }}
 {{ end }}
@@ -66,7 +71,7 @@ spec:
             command:
             - /bin/sh
             - -c
-            - "! ls /vsts/agent/_diag | grep Worker || pgrep Agent.Worker"
+            - "! ls /azp/agent/_diag | grep Worker || pgrep Agent.Worker"
           initialDelaySeconds: 120
           periodSeconds: 5
      {{- end }}
